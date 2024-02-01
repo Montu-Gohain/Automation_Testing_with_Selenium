@@ -1,4 +1,4 @@
-# These are features of Selenium
+# These are the features of Selenium
 
 1. Selenium is an open source Automation testing tool
 2. It is exclusively for Web Based applications
