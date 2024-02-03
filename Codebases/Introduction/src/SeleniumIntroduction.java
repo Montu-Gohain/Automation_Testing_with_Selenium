@@ -3,19 +3,27 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class SeleniumIntroduction {
 	  public static void main(String[] args) {
-
-      // Step 1 : Invoking the browser with ChromeDriver
-		  WebDriver driver = new ChromeDriver(); // Here Webdriver is an interface
-		 
+       // Step 1 : Invoke Chrome browser using the ChromeBrowser Driver.
+		  WebDriver driver = new ChromeDriver();
 		  
-		  String SITE_URL = "https://www.udemy.com";
+		  // Let's try to open chrome using this script.
 		  
-		  // To hit a URL on the browser we can use this method.
-		  driver.get(SITE_URL);
+		  driver.get("https://rahulshettyacademy.com");
 		  
 		  
-		  // To get the title of the webpage.
-		 String webpage_title = driver.getTitle();		 
-		 System.out.println(webpage_title);
+		  // Let's get the title of the page.
+		  String page_title = driver.getTitle();
+		  System.out.println(page_title);
+		  
+		  // Let's get the current URL of the page.
+		  
+		  System.out.println(driver.getCurrentUrl());
+		  
+		  
+		  
+		  // Now after running all the test, we want the browser to be automatically get closed.
+		  
+		  driver.close();
+				  
 	  }
 }
