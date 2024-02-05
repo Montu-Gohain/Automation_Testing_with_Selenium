@@ -21,3 +21,12 @@
 3. Browser drivers communicate with its respective broswer and executes the commands by interpreting Json which it received on the browser.
 
 4. Browser Driver receives responses back from the browser adn it sends json response back to client.
+
+---
+
+> Date : 05/02/2024
+
+1. Learned how to get elements by using Selenium Selectors.These are :
+   Id, className, name,tagname, Xpath, cssSelector
+2. Implicit wait for asynchronous operations
+3. After finding the targeted elemlent , how to emulate keyboard entry along with mouse click. i.e. Use of .click() and .sendKeys() method.
