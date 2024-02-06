@@ -28,5 +28,70 @@
 
 1. Learned how to get elements by using Selenium Selectors.These are :
    Id, className, name,tagname, Xpath, cssSelector
+
+   ```java
+     Webdriver driver = new ChromeDriver();
+
+     // By using the id locator we can target html element
+     driver.findElement(By.id("inputUsername")).sendKeys("rahul");
+
+     // By using name in the input fields we can target html element
+     driver.findElement(By.id("inputUsername")).sendKeys("rahul");
+
+     // By using classname in the input fields we can target html element
+     driver.findElement(By.className("signInBtn")).click();
+
+   ```
+
 2. Implicit wait for asynchronous operations
+
+   ```java
+   // To perform any asynchronous operation or let's say we need to wait for some time , for something to happen, in this case
+   Webdriver driver = new ChromeDriver();
+   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(4));
+   ```
+
 3. After finding the targeted elemlent , how to emulate keyboard entry along with mouse click. i.e. Use of .click() and .sendKeys() method.
+
+   ```java
+
+    Webdriver driver = new ChromeDriver();
+    driver.findElement(By.name("inputPassword")).sendKeys("hello123");
+
+   // To emulate mouse click action
+
+   driver.findElement(By.className("signInBtn")).click();
+
+   ```
+
+> Date : 06 / 02 / 2024
+
+1. Learned how to visit an anchor tag with only the link text
+
+```java
+
+   Webdriver driver = new ChromeDriver();
+   driver.findElement(By.linkText("Forgot your password ?")).click();
+
+```
+
+2. How to access something using x-path
+
+> // htmltagname[@attribute="value"]
+
+```html
+<!-- For an input element inside a form -->
+<input type="text" placeholder="Name" />
+//input[@palceholder="Name"]
+<!-- This above is the x-path -->
+```
+
+3. What if we don't have any unique identifier, in this case we can use indexing
+
+```java
+ // Let's say we have multiple elements with input type="text"
+
+ Webdriver driver = new ChromeDriver();
+ driver.findElement(By.xpath("//input[@type='text'][2]")).clear();
+
+```
