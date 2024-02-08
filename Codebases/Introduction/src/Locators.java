@@ -28,7 +28,7 @@ public class Locators {
 	   
 	   String TEST_URL = "https://rahulshettyacademy.com/locatorspractice/";
 	   
-	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(6viva));
+	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(6));
 	   
 	   driver.get(TEST_URL);
 	   
