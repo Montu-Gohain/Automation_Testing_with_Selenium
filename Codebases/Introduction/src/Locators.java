@@ -26,9 +26,11 @@ public class Locators {
 	   
 	   //We need to use implicit wait, its like setTimeout() in JS.
 	   
-	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(4));
+	   String TEST_URL = "https://rahulshettyacademy.com/locatorspractice/";
 	   
-	   driver.get("https://rahulshettyacademy.com/locatorspractice/");
+	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(6viva));
+	   
+	   driver.get(TEST_URL);
 	   
 	   // Let's find input element for email using ID locator
 	   driver.findElement(By.id("inputUsername")).sendKeys("rahul");
@@ -68,7 +70,13 @@ public class Locators {
 	   
 	   driver.findElement(By.xpath("//input[@placeholder='Phone Number']")).sendKeys("9876543212");
 	   
+	   driver.findElement(By.xpath("//form/input[2]")).clear();
+	   driver.findElement(By.xpath("//form/input[2]")).sendKeys("hellothere");
 	   
-//	   System.out.println(error_element);
+	   String info_msg = driver.findElement(By.cssSelector("form p.infoMsg")).getText();
+	   
+	   System.out.println(info_msg);
+	   
+//	   System.out.println(error_elem ent);
 	}
 }

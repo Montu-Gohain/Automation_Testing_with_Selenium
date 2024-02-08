@@ -93,5 +93,7 @@
 
  Webdriver driver = new ChromeDriver();
  driver.findElement(By.xpath("//input[@type='text'][2]")).clear();
+// or we can use parent to child x-path
+  driver.findElement(By.xpath("//form/input[2]")).sendKeys("hellothere");
 
 ```
