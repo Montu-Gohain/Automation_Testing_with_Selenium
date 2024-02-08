@@ -1,12 +1,17 @@
+
 import org.openqa.selenium.By;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class SignInPage {
+
+
     public  static  void main(String[] args){
 
         // Todo: Step 1 -> Create an instance of webdriver using chrome driver
         WebDriver driver = new ChromeDriver();
+
        //Let's visit a website and test out whatever we've learned so far
         String TEST_URL = "https://rahulshettyacademy.com/locatorspractice/";
         driver.get(TEST_URL);
@@ -39,7 +44,7 @@ public class SignInPage {
             throw new RuntimeException(e);
         }
 
-        closeBrowser(driver, 5);
+//        closeBrowser(driver, 5);
     }
     public static void closeBrowser(WebDriver driver, Integer duration){
         // Todo : Closing the browser windows after 3 seconds.
@@ -50,4 +55,5 @@ public class SignInPage {
             throw new RuntimeException(e);
         }
     }
+
 }
