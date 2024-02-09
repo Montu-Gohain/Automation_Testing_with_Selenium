@@ -34,24 +34,22 @@ public class ScheduleProLogin {
             String Test_URL = prop.getProperty("scheduleProUrl");
             String userEmail = prop.getProperty("userEmail");
             String userPassword = prop.getProperty("userPass");
+            String predicted_url = prop.getProperty("redirectedUrl");
 
             // Todo: Let's begin our testing.
             // Test 1: Visit the URL first
             WebDriver driver = new ChromeDriver();
             driver.manage().window().maximize();
             ExtentTest test_visit_url = extent.createTest("Visiting Schedule Pro Login page", "Opening SchedulePro Login Page");
-            boolean success = false;
-            int retries = 3; // Number of retries
-            while (!success && retries > 0) {
                 try {
                     test_visit_url.info("Opening Login page of Schedule Pro");
                     driver.get(Test_URL);
-                    Thread.sleep(19000);
-                    String text_finder = driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/h5")).getText();
-                    System.out.println(text_finder);
-                    if (text_finder.equals("Login")) {
+                    Thread.sleep(20000);
+                    String InPage_text_finder = driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/h5")).getText();
+                    System.out.println(InPage_text_finder);
+
+                    if (InPage_text_finder.equals("Login")) {
                         test_visit_url.pass("We have reached SchedulePro Login Page");
-                        success = true;
                         System.out.println("Test Passed");
                     } else {
                         test_visit_url.fail("Failed to reach SchedulePro Login Page");
@@ -60,16 +58,45 @@ public class ScheduleProLogin {
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println("Failed to visit Schedule pro Login page. Retrying...");
-                    retries--;
-                    if (retries > 0) {
-                        Thread.sleep(10000); // Wait for 10 seconds before retrying
-                    }
                     test_visit_url.fail("Failed to visit SchedulePro Login page");
+                }
+
+            // Test 2: Log In Using the credentials
+
+            ExtentTest test_login = extent.createTest("LogIn Using Credentials", "Let's Log In Using correct Credentials");
+                try{
+                    // Step 1 : Fill up the form with proper credentials.
+                    driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/div[1]/div/input")).sendKeys(userEmail);
+                    driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/div[2]/div/div/input")).sendKeys(userPassword);
+
+                    // Step 2 : Click on the checkbox
+
+                    driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/p[2]/input")).click();
+
+                    Thread.sleep(5000);
+                    // Step 3 : Click on Login Button
+                    driver.findElement(By.xpath("/html/body/div/div[2]/div/div/div[2]/div[2]/form/div[3]/button")).click();
+                    test_login.info("LogIn Button Clicked");
+                    // Wait for 10 seconds till the redirection happens.
+
+                    Thread.sleep(20000);
+                    // Step 4 : Let's see if we've reached the book appointments page.
+                    String current_url = driver.getCurrentUrl();
+                    System.out.println(current_url);
+                    if(current_url.equals(predicted_url)){
+                        test_login.pass("Login Successful");
+                    }
+                    else {
+                        test_login.fail("Login Failed");
+                    }
 
                 }
-            }
+                catch (Exception E){
+                    E.printStackTrace();
+                }
+
             // Closing browser windows.
-            Thread.sleep(4000);
+            Thread.sleep(14000);
             driver.quit();
         } catch (Exception e) {
             e.printStackTrace();
