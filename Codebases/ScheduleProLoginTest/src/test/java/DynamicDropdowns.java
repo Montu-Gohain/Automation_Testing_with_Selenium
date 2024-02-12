@@ -30,7 +30,8 @@ public class DynamicDropdowns {
             // Step 2 : Select Bengaluru from the options
             driver.findElement(By.xpath("//a[@value='BLR']")).click();
             // Step 4 : Select Chennai from the options.
-            driver.findElement(By.xpath("(//a[@value='MAA'])[2]")).click();
+//            driver.findElement(By.xpath("(//a[@value='MAA'])[2]")).click();
+            driver.findElement(By.xpath("/html/body/form/div[4]/div[2]/div/div[5]/div[2]/div[2]/div[2]/div[3]/div/div[3]/div/div[2]/div[2]/div/table/tbody/tr[2]/td[2]/div[3]/div[1]/div/ul[1]/li[7]/a")).click();
 
             // Close browser after tests completion.
             Thread.sleep(4000);
