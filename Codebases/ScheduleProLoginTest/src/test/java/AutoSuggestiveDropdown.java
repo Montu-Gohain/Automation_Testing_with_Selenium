@@ -2,6 +2,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +43,22 @@ public class AutoSuggestiveDropdown {
                     break;
                 }
             }
+
+            // Let's check on some checkboxes using assertions.
+
+            // Here we're learning about Assert.assertFalse and Assert.assertTrue
+
+            Assert.assertFalse(driver.findElement(By.xpath("/html/body/form/div[4]/div[2]/div/div[5]/div[2]/div[2]/div[2]/div[3]/div/div[12]/div[1]/input")).isSelected());
+            Thread.sleep(4000);
+
+            driver.findElement(By.xpath("/html/body/form/div[4]/div[2]/div/div[5]/div[2]/div[2]/div[2]/div[3]/div/div[12]/div[1]/input")).click();
+
+            Assert.assertTrue(driver.findElement(By.xpath("/html/body/form/div[4]/div[2]/div/div[5]/div[2]/div[2]/div[2]/div[3]/div/div[12]/div[1]/input")).isSelected());
+            // It should check the checkbox.
+
+            // Let's find out how many checkboxes are available in this webpage.
+            // Using Assert.assertEquals(acutal ,expected)
+            Assert.assertEquals(driver.findElements(By.cssSelector("input[type='checkbox']")).size(), 96);
 
             // Close the browser windows after completions of all tests.
             Thread.sleep(4000);
