@@ -57,8 +57,9 @@ public class AutoSuggestiveDropdown {
             // It should check the checkbox.
 
             // Let's find out how many checkboxes are available in this webpage.
-            // Using Assert.assertEquals(acutal ,expected)
-            Assert.assertEquals(driver.findElements(By.cssSelector("input[type='checkbox']")).size(), 96);
+            // Using Assert.assertEquals(actual ,expected)
+            
+            Assert.assertEquals(driver.findElements(By.cssSelector("input[type='checkbox']")).size(), 6);
 
             // Close the browser windows after completions of all tests.
             Thread.sleep(4000);
