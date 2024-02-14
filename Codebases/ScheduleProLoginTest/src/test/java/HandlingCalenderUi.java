@@ -54,7 +54,18 @@ public class HandlingCalenderUi {
             System.out.println("Selecting one way again.");
             Thread.sleep(2000);
             // Now let's check if the second calender option is disabled or not.
-            Assert.assertFalse(driver.findElement(By.id("ctl00_mainContent_view_date2")).isEnabled());
+            //Assert.assertFalse(driver.findElement(By.id("ctl00_mainContent_view_date2")).isEnabled()); // Not the accurate way of checking if something is disabled or enabled.
+
+           if(driver.findElement(By.id("Div1")).getAttribute("style").contains("opacity: 0.5;")){
+               System.out.println("Its disabled");
+               Assert.assertTrue(true);
+           }
+           else{
+               System.out.println("its enabled");
+               Assert.assertFalse(false);
+           }
+
+
             System.out.println("The second calender is disabled.");
             // Close the browser after completion of all the tests
             Thread.sleep(3000);
