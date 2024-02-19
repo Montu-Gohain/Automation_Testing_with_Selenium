@@ -80,7 +80,7 @@ public class e2e {
                 Assert.fail();
             }
 
-
+            System.out.println("All tests have been passed.");
             // Close the browser after completion of all the tests.
             Thread.sleep(5000);
             driver.quit();
