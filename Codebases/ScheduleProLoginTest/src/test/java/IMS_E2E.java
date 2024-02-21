@@ -2,8 +2,10 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
+import freemarker.log._Log4jOverSLF4JTester;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -39,7 +41,7 @@ public class IMS_E2E {
         options.addArguments("--window-size=1500,968");
         WebDriver driver = new ChromeDriver(options);
 //        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(125));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(180));
         try{
             Properties prop = new Properties();
             File file  = new File("testdata.properties");
@@ -72,7 +74,6 @@ public class IMS_E2E {
             // 3 : Todo : checking if we've reached the reports page.
             ExtentTest test_reach_reportsPage = extent.createTest("Landing on Reports Page", "Verify that we've landed on the Reports page.");
             Test3_navigateToReportsPage(driver,test_reach_reportsPage);
-
             // 4 : Todo : Extracting data points from the report page.
             ExtentTest test_extract_data_from_reportsPage = extent.createTest("Extract data from Reports Page", "Extract No. of total Appointments from reports page");
             int total_appointments = Test4_ExtractingDataFromReportPage(driver, test_extract_data_from_reportsPage);
@@ -80,9 +81,12 @@ public class IMS_E2E {
             exp_wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"root\"]/div[2]/div/div[2]/div/div[1]/div[1]/span")));
 
             // 5 : Todo : Check whether the table has all of the appointments data, which should be equal to number of total appointments.
-            ExtentTest test_presenceOf_data_in_table = extent.createTest("Verify Table contains all appointments data.", "Check if Total no. of appointments = Total no. of rows in the table.");
-            Test5_CheckingNoOfRowsInTable(driver, total_appointments,test_presenceOf_data_in_table);
+            ExtentTest test_presenceOf_data_in_table = extent.createTest("Verify if the table contains all appointments data.", "Check if Total no. of appointments = Total no. of rows in the table.");
+            Test5_CheckingNoOfRowsInTable(driver, total_appointments,test_presenceOf_data_in_table, "Appointment by warehouse");
 
+            exp_wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//i[contains(@class, 'fa-regular') and contains(@class, 'fa-calendar')])[2]")));
+            ExtentTest test_findingDataWithCustomDates = extent.createTest("Find Data with Custom date range", "Search Appointments data with Custom Date range.");
+            Test_6_get_appointmentsData_with_customDates(driver, test_findingDataWithCustomDates);
 
             Thread.sleep(6000);
             // Todo : Logout from IMS
@@ -96,13 +100,13 @@ public class IMS_E2E {
             System.out.println("Logout Confirm Button Clicked");
 
             // After all of these close the browser.
+            System.out.println("All tests passed");
 
         }
         catch (Exception E){
             E.printStackTrace();
             System.out.println("Test Failed,Something Went Wrong.");
         }
-        System.out.println("All tests passed");
         driver.quit();
         extent.flush();
     }
@@ -123,6 +127,7 @@ public class IMS_E2E {
     }
     public static void Test_1_user_login(WebDriver driver, String username, String password, ExtentTest _Test_){
         try{
+            Thread.sleep(5000);
             _Test_.info("Filling out username and password field");
             driver.findElement(By.xpath("//input[@placeholder='Enter Email']\n")).sendKeys(username);
             driver.findElement(By.xpath("//input[@placeholder='Enter Password']\n")).sendKeys(password);
@@ -152,11 +157,9 @@ public class IMS_E2E {
            String expected_url = "https://scheduleproqa.freightsmith.net/bookappointments";
            Assert.assertEquals(expected_url, driver.getCurrentUrl());
            System.out.println("Verification successful for the current URL");
-
-
            // Click on the Reports option on the sidebar.
            driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div/div[1]/div/div/ul/li[5]/div/span[1]")).click();
-           Thread.sleep(2000);
+           Thread.sleep(7000);
 
            // Finding out the Appointment summary option in the page via selenium.
            if(driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div/div[1]/div/div/ul/li[5]/div[2]/ul/a[2]/li")).isDisplayed()){
@@ -190,16 +193,33 @@ public class IMS_E2E {
     public static int Test4_ExtractingDataFromReportPage(WebDriver driver,ExtentTest _Test_){
         int noOfTotalAppointments=0;
         try{
-            _Test_.info("Checking if we're able to extract the No. of Total Appointments");
+            _Test_.info("Checking whether number of Total Appointments is visible on the page.");
             Thread.sleep(4000);
+            String warehouse_ap = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div[1]/table/tbody/tr[1]/td[2]")).getText();
+            String carrier_ap = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div[1]/table/tbody/tr[2]/td[2]")).getText();
+
+            int appointment_by_warehouse = Integer.parseInt(warehouse_ap);
+            int appointment_by_carrier = Integer.parseInt(carrier_ap);
+
+            if(appointment_by_carrier > 0 || appointment_by_warehouse > 0){
+                _Test_.pass("We've found, Appointment by warehouse : " + appointment_by_warehouse + ", Appointment by carrier : " + appointment_by_carrier);
+            }
+            else{
+                _Test_.fail("Failed to fetch Appointments Data");
+            }
+            _Test_.info("Retrieve Total number of Total Appointments");
+            int total_appointments =appointment_by_carrier + appointment_by_warehouse;
+            System.out.println("Warehouse appointments : " + appointment_by_warehouse + " Carrier Appointments : " + appointment_by_carrier + " Total Appointments : " + total_appointments);
+
+
             String totalAppointments = driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div/div[2]/div/div[2]/div[1]/table/tbody/tr[3]/td[2]")).getText();
             noOfTotalAppointments = Integer.parseInt(totalAppointments);
 
-            if(noOfTotalAppointments > 0){
-                _Test_.pass("Successfully extracted No. of Total Appointments from report page.");
+            if(total_appointments > 0 && total_appointments == noOfTotalAppointments){
+                _Test_.pass("Total Appointments found : " + total_appointments);
             }
-            else {
-                _Test_.fail("Failed to extract no. of Total Appointments from the report page.");
+            else{
+                _Test_.fail("Failed to retrieve number of Total Appointments");
             }
 
             System.out.println("Number of total appointments : " + noOfTotalAppointments);
@@ -217,11 +237,11 @@ public class IMS_E2E {
         return noOfTotalAppointments;
 
     }
-    public static void Test5_CheckingNoOfRowsInTable(WebDriver driver, int totalAppointments,ExtentTest _Test_){
+    public static void Test5_CheckingNoOfRowsInTable(WebDriver driver, int totalAppointments,ExtentTest _Test_, String testSubject){
         try{
             Thread.sleep(17000);
             WebElement tbodyElement = driver.findElement(By.className("SS-drilldown-body"));
-
+            _Test_.info("Compare number of rows in the table with number of " + testSubject);
             // Find all <tr> elements that are children of the <tbody> element
             // and count them
             int rowCount = tbodyElement.findElements(By.tagName("tr")).size();
@@ -231,21 +251,26 @@ public class IMS_E2E {
 
 //            Assert.assertEquals(rowCount, totalAppointments);
             if(Objects.equals(rowCount, totalAppointments)){
-                _Test_.pass("We've found all the records of Appointments in the table.");
+                _Test_.pass("Number of rows in the data table is : " + rowCount + ", which matches with the value found through the previous test, which was also : " + totalAppointments);
             }
             else{
-                _Test_.fail("Test Failed,No. of total Appointment and No. of total data rows in the table not matching.");
+                _Test_.fail("Test Failed, number of total Appointments was : " + totalAppointments + " and number of rows in the data table : " + rowCount);
             }
-            Thread.sleep(9000);
+            Thread.sleep(3000);
 
+            _Test_.info("Click on the arrow to get back to the Reports page.");
             // Todo : Click on the back arrow and check we are getting redirected to the /reports page.
             driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div/div[2]/div/div[1]/div[1]/span/i")).click();
 
             Thread.sleep(5000);
             String expectedUrl = "https://scheduleproqa.freightsmith.net/report";
-            Assert.assertEquals(expectedUrl, driver.getCurrentUrl());
+            if(Objects.equals(expectedUrl, driver.getCurrentUrl())){
+                _Test_.pass("We successfully redirected back to Reports page");
+            }
+            else{
+                _Test_.fail("Failed to redirect to the Reports page.");
+            }
             System.out.println("Back button is working as expected.");
-
         }
         catch (Exception E){
             E.printStackTrace();
@@ -253,4 +278,57 @@ public class IMS_E2E {
 
         }
     }
+    public static void Test_6_get_appointmentsData_with_customDates(WebDriver driver, ExtentTest _Test_){
+        try{
+            Thread.sleep(9000);
+            System.out.println("Testing out with custom dates");
+
+            _Test_.info("Fetching Appointment data by selecting a custom date range");
+
+            select_end_date(driver);
+
+            Thread.sleep(8000);
+            String warehouse_ap = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div[1]/table/tbody/tr[1]/td[2]")).getText();
+            String carrier_ap = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div[1]/table/tbody/tr[2]/td[2]")).getText();
+
+            int appointment_by_warehouse = Integer.parseInt(warehouse_ap);
+            int appointment_by_carrier = Integer.parseInt(carrier_ap);
+
+            if(appointment_by_carrier > 0 || appointment_by_warehouse > 0){
+                _Test_.pass("We've found, Appointment by warehouse : " + appointment_by_warehouse + ", Appointment by carrier : " + appointment_by_carrier);
+            }
+            else{
+                _Test_.fail("Failed to fetch Appointments Data");
+            }
+            _Test_.info("Retrieve Total number of Total Appointments");
+            int total_appointments =appointment_by_carrier + appointment_by_warehouse;
+            System.out.println("Warehouse appointments : " + appointment_by_warehouse + " Carrier Appointments : " + appointment_by_carrier + " Total Appointments : " + total_appointments);
+
+            if(total_appointments > 0){
+                _Test_.pass("Total Appointments found : " + total_appointments);
+            }
+            else{
+                _Test_.fail("Failed to retrieve number of Total Appointments");
+            }
+            // Todo : Verification of data in the tables page.
+            // Todo : 1. Click on the green part of the graph
+            WebElement carrier_graph = driver.findElement(By.xpath("(//*[name()='svg']//*[name()='path'])[2]"));
+            if(carrier_graph.isDisplayed()){
+                carrier_graph.click();
+            }
+            Test5_CheckingNoOfRowsInTable(driver, appointment_by_carrier, _Test_, "Appointment by Carrier");
+        }
+        catch (Exception E){
+            E.printStackTrace();
+            System.out.println("Test Failed, Something Went Wrong.");
+        }
+    }
+    public static void select_end_date(WebDriver driver){
+        // Open the end date Calendar Modal
+        driver.findElement(By.xpath("(//i[contains(@class, 'fa-regular') and contains(@class, 'fa-calendar')])[3]")).click();
+        // Selecting the end date
+        driver.findElement(By.xpath("//button[@class='picker-day' and @data-day='28']")).click();
+
+    }
+
 }
