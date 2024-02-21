@@ -38,7 +38,8 @@ public class IMS_E2E {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=1500,968");
         WebDriver driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(45));
+//        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(125));
         try{
             Properties prop = new Properties();
             File file  = new File("testdata.properties");
@@ -102,6 +103,7 @@ public class IMS_E2E {
             System.out.println("Test Failed,Something Went Wrong.");
         }
         System.out.println("All tests passed");
+        driver.quit();
         extent.flush();
     }
     public  static void Test_0_open_URL(WebDriver driver, String url, ExtentTest _Test_){
@@ -217,7 +219,7 @@ public class IMS_E2E {
     }
     public static void Test5_CheckingNoOfRowsInTable(WebDriver driver, int totalAppointments,ExtentTest _Test_){
         try{
-            Thread.sleep(9000);
+            Thread.sleep(17000);
             WebElement tbodyElement = driver.findElement(By.className("SS-drilldown-body"));
 
             // Find all <tr> elements that are children of the <tbody> element
