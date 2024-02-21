@@ -7,3 +7,6 @@
 - How to insert a input field using sendKeys() method.
 - How to test Dropdowns and checkboxes using Assert method from TestNg
 - How to Handle Calender UI
+- How to add products in the cart in a shopping website.
+
+## 19th Feb
