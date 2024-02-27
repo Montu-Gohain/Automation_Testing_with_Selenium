@@ -1,4 +1,5 @@
 import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 import org.openqa.selenium.By;
@@ -7,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v85.layertree.model.StickyPositionConstraint;
 import org.openqa.selenium.support.ui.Select;
 
 import javax.swing.plaf.basic.BasicTreeUI;
@@ -15,6 +17,7 @@ import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ScheduleProCreatePo {
@@ -45,15 +48,25 @@ public class ScheduleProCreatePo {
             prop.load(fis);
 
             // Step 1 : Login to the home page.
-            Login(driver,  prop);
+            ExtentTest test_reach_book_appointments = extent.createTest("Reach Book Appointment Page", "Login and Reach Book Appointments page.");
+            Login(driver,  prop, test_reach_book_appointments);
+
+
             // Step 2 : Go the PO Management Page.
-            Goto_PO_Management(driver);
+            ExtentTest test_reach_PO_Management = extent.createTest("Reach PO Management Page", "Click on the option in sidebar and reach PO Management Page.");
+            Goto_PO_Management(driver, test_reach_PO_Management);
+
             // Step 3 : Fill the form to create a new PO
-            // CreatePO(driver);
+            ExtentTest test_create_new_PO = extent.createTest("Create a new PO", "Fill the input fields and create a new PO");
+            CreatePO(driver,test_create_new_PO);
+
+
+             // Step 4 : Edit the latest PO.
             EditPO(driver);
 
-//            Thread.sleep(3000);
-//            driver.quit();
+            Thread.sleep(3000);
+            driver.quit();
+            extent.flush();
         }
 
         catch (Exception E){
@@ -61,7 +74,7 @@ public class ScheduleProCreatePo {
             System.out.println("Something went wrong, Test failed");
         }
     }
-    public  static void Login(WebDriver driver,Properties prop){
+    public  static void Login(WebDriver driver,Properties prop,ExtentTest test_){
         try{
             String TEST_URL =  prop.getProperty("scheduleProUrl");
             String userEmail = prop.getProperty("userEmail");
@@ -75,6 +88,18 @@ public class ScheduleProCreatePo {
             Thread.sleep(2000);
             // Finally click on Login button.
             driver.findElement(By.className("btn-submit")).click();
+            Thread.sleep(8000);
+
+            test_.info("Checking an HTML element that's present in the book appointments page.");
+
+            WebElement target_element =  driver.findElement(By.xpath("/html/body/div/div[2]/div/div[1]/div/div/ul/li[4]/a/div"));
+
+            if(Objects.equals(target_element.getText(), "PO Management")){
+                test_.pass("We've reached the book appointments page after successful login.");
+            }
+            else{
+                test_.fail("Test failed, failed to reach book appointments page.");
+            }
             System.out.println("We've Reached the home page");
         }
         catch (Exception E){
@@ -82,11 +107,21 @@ public class ScheduleProCreatePo {
             System.out.println("Something went wrong, Test failed");
         }
     }
-    public static void Goto_PO_Management(WebDriver driver){
+    public static void Goto_PO_Management(WebDriver driver, ExtentTest test_){
         try{
-            Thread.sleep(8000);
             driver.findElement(By.xpath("/html/body/div/div[2]/div/div[1]/div/div/ul/li[4]/a/div")).click();
             Thread.sleep(8000);
+
+            test_.info("Checking if we've reached the PO Management Page.");
+
+            WebElement target_element =  driver.findElement(By.xpath("//h4"));
+
+            if(Objects.equals(target_element.getText(), "PO Management")){
+                test_.pass("We've reached PO Management Page");
+            }
+            else{
+                test_.fail("Test failed, we've Failed to reach PO Management Page.");
+            }
 
         }
         catch (Exception E){
@@ -94,7 +129,7 @@ public class ScheduleProCreatePo {
             System.out.println("Something went wrong, Test failed.");
         }
     }
-    public static void CreatePO(WebDriver driver){
+    public static void CreatePO(WebDriver driver, ExtentTest test_){
         try{
             // Click on the Create PO button
             driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[1]/div[1]/div/div[1]/button")).click();
@@ -102,14 +137,15 @@ public class ScheduleProCreatePo {
             // Wait for 2 seconds.
             Thread.sleep(2000);
 
-            String po_number = "165244";
-            String vender_name = "Montu Testing";
+            String po_number = "333444";
+            String vender_name = "Testing ignore";
             String commodity = "Dairy";
-            String buyer_name = "Mr Smith";
-            String items_count = "12000";
-            String cases_count = "1500";
+            String buyer_name = "Mr Bond";
+            String items_count = "12345";
+            String cases_count = "4321";
             String total_weight = "8280";
-            String pallet_count = "900";
+            String pallet_count = "937";
+
             // Todo : Let's fill up the form.
             // 1. PO number
             driver.findElement(By.xpath("//input[@name='PoNumber']")).sendKeys(po_number);
@@ -154,6 +190,24 @@ public class ScheduleProCreatePo {
             // Finally we click on the Save button.
             driver.findElement(By.xpath("/html/body/div[3]/div/div/div/div[2]/div/div/div[2]/button[2]")).click();
             System.out.println("Clicked the save button.");
+
+            // Todo : To test out if we've successfully created a new PO we can compare the total number of PO , before and after this test.
+            test_.info("Checking if we can see the new PO with PO number in table");
+
+
+            Thread.sleep(5000); // Waiting to update the table with our new PO.
+
+            String new_po_xpath = "//*[@id='pdf-content']/tbody/tr/td[2][text() = '" + po_number + "']";
+
+            WebElement target_po_in_table = driver.findElement(By.xpath(new_po_xpath));
+
+            if(target_po_in_table.isDisplayed()){
+             test_.pass("Test passed, since we can see the new PO");
+            }
+            else{
+                test_.fail("Test failed, Failed to see the new PO");
+            }
+
         }
         catch (Exception E){
             E.printStackTrace();
@@ -162,11 +216,21 @@ public class ScheduleProCreatePo {
     }
     public static void EditPO(WebDriver driver){
         try{
-            // Clicking on the edit button (Represented by a pen)
-            driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div/div[1]/table/tbody/tr[1]/td[9]/div/img[1]")).click();
+
+            String targetCellValue = "165244";
+//            WebElement targetRow = driver.findElement(By.xpath("//tr//td[text() = '" + targetCellValue + "']//parent::tr"));
+//
+
+            String target_row_xpath = "//tr//td[text() = '" + targetCellValue + "']//parent::tr/td[9]/div/img[1]";
+
+            driver.findElement(By.xpath(target_row_xpath)).click();
+//
+//            // Clicking on the edit button (Represented by a pen)
+//            driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div/div[1]/table/tbody/tr[1]/td[9]/div/img[1]")).click();
+
 
             // Update the value for commodity
-            String commodity = "Cow Milk";
+            String commodity = "Cadbury Dairy Milk";
             // 4. Commodity
             WebElement  commodityInputField = driver.findElement(By.xpath("//input[@name='Commodity']"));
             //Since the clear method is not working, we'll use ctrl + a + del
