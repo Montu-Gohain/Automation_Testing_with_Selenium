@@ -8,10 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.devtools.v85.layertree.model.StickyPositionConstraint;
 import org.openqa.selenium.support.ui.Select;
 
-import javax.swing.plaf.basic.BasicTreeUI;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
@@ -19,6 +17,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
+
 
 public class ScheduleProCreatePo {
     public static void main(String[] args) {
@@ -58,11 +57,12 @@ public class ScheduleProCreatePo {
 
             // Step 3 : Fill the form to create a new PO
             ExtentTest test_create_new_PO = extent.createTest("Create a new PO", "Fill the input fields and create a new PO");
-            CreatePO(driver,test_create_new_PO);
+            CreatePO(driver,test_create_new_PO, prop);
 
 
              // Step 4 : Edit the latest PO.
-            EditPO(driver);
+            ExtentTest test_Edit_existing_PO = extent.createTest("Edit an existing PO", "By clicking on the pencil icon we can edit the existing value for that PO.");
+            EditPO(driver, test_Edit_existing_PO);
 
             Thread.sleep(3000);
             driver.quit();
@@ -129,24 +129,28 @@ public class ScheduleProCreatePo {
             System.out.println("Something went wrong, Test failed.");
         }
     }
-    public static void CreatePO(WebDriver driver, ExtentTest test_){
+    public static void CreatePO(WebDriver driver, ExtentTest test_, Properties prop){
         try{
+
             // Click on the Create PO button
             driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[1]/div[1]/div/div[1]/button")).click();
             System.out.println("Here we can add a new PO");
             // Wait for 2 seconds.
             Thread.sleep(2000);
 
-            String po_number = "333444";
-            String vender_name = "Testing ignore";
-            String commodity = "Dairy";
-            String buyer_name = "Mr Bond";
-            String items_count = "12345";
-            String cases_count = "4321";
-            String total_weight = "8280";
-            String pallet_count = "937";
+            String po_number = prop.getProperty("po_number");
+            String vender_name = prop.getProperty("vender_name");
+            String commodity = prop.getProperty("commodity_name");
+            String buyer_name = prop.getProperty("buyer_name");
+            String items_count =  prop.getProperty("items_total");
+            String cases_count =  prop.getProperty("cases_total");
+            String total_weight =  prop.getProperty("weight_total");
+            String pallet_count =  prop.getProperty("pallet_count");
+            String dock_type_value =  prop.getProperty("dock_type_value");
+            String dueDate = prop.getProperty("due_date");
 
-            // Todo : Let's fill up the form.
+
+            // Todo : Let's fill up the form. add these input values in Extent report.
             // 1. PO number
             driver.findElement(By.xpath("//input[@name='PoNumber']")).sendKeys(po_number);
 
@@ -179,7 +183,7 @@ public class ScheduleProCreatePo {
             Select dock_type_options = new Select(dock_type_selector);
 
             // Let's select Dairy.
-            dock_type_options.selectByValue("D1576416-B198-4CA0-95CA-4CC824832043");
+            dock_type_options.selectByValue(dock_type_value);
             System.out.println("Selected option : "+ dock_type_options.getFirstSelectedOption().getText());
 
             Thread.sleep(2000);
@@ -191,8 +195,9 @@ public class ScheduleProCreatePo {
             driver.findElement(By.xpath("/html/body/div[3]/div/div/div/div[2]/div/div/div[2]/button[2]")).click();
             System.out.println("Clicked the save button.");
 
-            // Todo : To test out if we've successfully created a new PO we can compare the total number of PO , before and after this test.
-            test_.info("Checking if we can see the new PO with PO number in table");
+
+            test_.info("Creating a new PO with these values : \n\n" + "PO Number : "+ po_number + "\n Vender Name : " + vender_name + "\n Buyer Name : " + buyer_name + "\n Dock Type : Dairy" + "\n Due date : " + dueDate + "\n Commodity : " + commodity  + "\n Total Items : " + items_count + "\n Total cases : " + cases_count + "\n Total weight : " + total_weight + "\n Pallet Count : " + pallet_count);
+
 
 
             Thread.sleep(5000); // Waiting to update the table with our new PO.
@@ -205,22 +210,22 @@ public class ScheduleProCreatePo {
              test_.pass("Test passed, since we can see the new PO");
             }
             else{
-                test_.fail("Test failed, Failed to see the new PO");
+                test_.fail("Test failed, Failed to create a new PO");
             }
 
         }
         catch (Exception E){
+            test_.fail("Test failed, Failed to Create a new PO");
             E.printStackTrace();
             System.out.println("Something went wrong, Test failed.");
         }
     }
-    public static void EditPO(WebDriver driver){
+    public static void EditPO(WebDriver driver, ExtentTest test_){
         try{
 
-            String targetCellValue = "165244";
+            String targetCellValue = "666777";
 //            WebElement targetRow = driver.findElement(By.xpath("//tr//td[text() = '" + targetCellValue + "']//parent::tr"));
 //
-
             String target_row_xpath = "//tr//td[text() = '" + targetCellValue + "']//parent::tr/td[9]/div/img[1]";
 
             driver.findElement(By.xpath(target_row_xpath)).click();
@@ -228,23 +233,28 @@ public class ScheduleProCreatePo {
 //            // Clicking on the edit button (Represented by a pen)
 //            driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div[2]/div/div[1]/table/tbody/tr[1]/td[9]/div/img[1]")).click();
 
+            // Update the value for PO number
+            String new_commodity = "Cottage Cheese";
+            test_.info("Updating the Commodity to " + new_commodity + " where PO number is " + targetCellValue);
 
-            // Update the value for commodity
-            String commodity = "Cadbury Dairy Milk";
+
             // 4. Commodity
             WebElement  commodityInputField = driver.findElement(By.xpath("//input[@name='Commodity']"));
+//            WebElement po_number_element = driver.findElement(By.xpath("//input[@name='PoNumber']"));
             //Since the clear method is not working, we'll use ctrl + a + del
             commodityInputField.sendKeys(Keys.CONTROL, "a");
             commodityInputField.sendKeys(Keys.DELETE);
 
 
-            driver.findElement(By.xpath("//input[@name='Commodity']")).sendKeys(commodity);
+            commodityInputField.sendKeys(new_commodity);
             Thread.sleep(2000);
             // Finally we click on the Save button.
             driver.findElement(By.xpath("/html/body/div[3]/div/div/div/div[2]/div/div/div[2]/button[2]")).click();
             System.out.println("Clicked the save button.");
+            test_.pass("Commodity got updated successfully to " + new_commodity);
         }
         catch (Exception E){
+            test_.fail("Test Failed, Failed to update the commodity");
             E.printStackTrace();
             System.out.println("Something went wrong,Test failed");
         }
