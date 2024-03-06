@@ -1,3 +1,5 @@
+package SchedulePro;
+
 import net.bytebuddy.asm.Advice;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

@@ -1,3 +1,5 @@
+package SchedulePro;
+
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
@@ -16,13 +18,13 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
 
-public class ReschedulePO {
+public class ScheduleAnAppointment {
     public static void main(String[] args) {
         // Todo : Setting up ExtentReport package to give us test results.
         ExtentReports extent = new ExtentReports();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String timestamp = sdf.format(new Date());
-        String filename = "target/Reports/ExtentReport_testing_PO_appointment_reschedule-" + timestamp + ".html";
+        String filename = "target/Reports/ExtentReport_testing_PO_appointment_schedule-" + timestamp + ".html";
         ExtentSparkReporter spark = new ExtentSparkReporter(filename);
         spark.config().setTheme(Theme.DARK);
         extent.attachReporter(spark);
@@ -52,7 +54,7 @@ public class ReschedulePO {
             Navigate_To_PO_management(driver, prop, extent);
 
 //            Step 3 : To Schedule an existing PO which is not yet scheduled.
-            Reschedule_PO(driver, prop, extent);
+            SchedulePO(driver, prop, extent);
 
             Thread.sleep(3000);
             // Final wait before closing the browser.
@@ -66,35 +68,34 @@ public class ReschedulePO {
         System.out.println("Performed all tests.");
         extent.flush();
     }
-//    Todo : Let's define our functions
-public  static void Login(WebDriver driver, Properties prop){
-    try{
-        System.out.println("Logging in with credentials");
-        String userEmail = prop.getProperty("userEmail");
-        String userPassword = prop.getProperty("userPass");
+    public  static void Login(WebDriver driver, Properties prop){
+        try{
+            System.out.println("Logging in with credentials");
+            String userEmail = prop.getProperty("userEmail");
+            String userPassword = prop.getProperty("userPass");
 
 //            Clearing existing input
-        // Step 1 : Login
-        driver.findElement(By.xpath("//input[@placeholder=\"Enter Email\"]")).sendKeys(userEmail);
-        Thread.sleep(2000);
+            // Step 1 : Login
+            driver.findElement(By.xpath("//input[@placeholder=\"Enter Email\"]")).sendKeys(userEmail);
+            Thread.sleep(2000);
 
-        driver.findElement(By.xpath("//input[@name=\"password\"]")).sendKeys(userPassword);
-        Thread.sleep(2000);
-        // Finally click on Login button.
-        driver.findElement(By.className("btn-submit")).click();
-        Thread.sleep(8000);
+            driver.findElement(By.xpath("//input[@name=\"password\"]")).sendKeys(userPassword);
+            Thread.sleep(2000);
+            // Finally click on Login button.
+            driver.findElement(By.className("btn-submit")).click();
+            Thread.sleep(8000);
 
 
 
-        System.out.println("We've Reached the home page");
+            System.out.println("We've Reached the home page");
+        }
+        catch (Exception E){
+            E.printStackTrace();
+            System.out.println("Something went wrong, Test failed");
+        }
     }
-    catch (Exception E){
-        E.printStackTrace();
-        System.out.println("Something went wrong, Test failed");
-    }
-}
 
-public  static void Navigate_To_PO_management(WebDriver driver, Properties prop,ExtentReports extent){
+    public  static void Navigate_To_PO_management(WebDriver driver, Properties prop,ExtentReports extent){
 
         String test1_desc = prop.getProperty("PO_Schedule_test1_desc");
 
@@ -128,39 +129,42 @@ public  static void Navigate_To_PO_management(WebDriver driver, Properties prop,
         }
     }
 
-public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReports extent){
+    public static void SchedulePO(WebDriver driver, Properties prop, ExtentReports extent){
         try{
 
-            String test2_desc = prop.getProperty("PO_Reschedule_test2_desc");
+            String test2_desc = prop.getProperty("PO_Schedule_test2_desc");
 
             ExtentTest test_Select_PO_to_Schedule = extent.createTest("Selecting a PO to Schedule an Appointment", test2_desc);
 
-            String targeted_PO_number = prop.getProperty("target_PO_to_reschedule");
+            String targeted_PO_number = prop.getProperty("target_PO_no");
             test_Select_PO_to_Schedule.info("Received the target PO with PO Number : " + targeted_PO_number + " from testdata.properties file");
 
 
             String target_row_xpath = "//tr//td[text() = '" + targeted_PO_number + "']//parent::tr/td[8]/div";
 
-            test_Select_PO_to_Schedule.info("Clicking on  Scheduled button");
+            test_Select_PO_to_Schedule.info("Clicking on Not Scheduled button");
             driver.findElement(By.xpath(target_row_xpath)).click();
 
-            test_Select_PO_to_Schedule.info("Waiting for 3 seconds to redirect to a different page , where we can Reschedule this PO.");
+            test_Select_PO_to_Schedule.info("Waiting for 3 seconds to redirect to a different page , where we can commence Appointment creation.");
             Thread.sleep(3000);
 
 
-            String PO_number_in_card = driver.findElement(By.xpath("(//div[@class='carrier-po-value'])[1]")).getText();
+            test_Select_PO_to_Schedule.info("Extracting text from the page to confirm successful selection of a PO");
+            // Now verify that Click on Schedule to proceed text is visible.
+            WebElement click_on_text = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div/div[2]/div/div[2]/span"));
 
 
-            if(Objects.equals(PO_number_in_card, targeted_PO_number)){
-                System.out.println("Now we can Re Schedule this PO");
-                test_Select_PO_to_Schedule.pass("Test passed, we've successfully selected PO with PO number : " + targeted_PO_number + " to Schedule an Appointment");
+
+            if(click_on_text.isDisplayed()){
+                System.out.println("Now we can Schedule this PO");
+               test_Select_PO_to_Schedule.pass("Test passed, we've successfully selected PO with PO number : " + targeted_PO_number + " to Schedule an Appointment");
 
 
-                String test3_desc = prop.getProperty("PO_Reschedule_test3_desc");
-                ExtentTest test_Schedule_by_Recommendation = extent.createTest("RESchedule this PO by the Recommended way",test3_desc);
+               String test3_desc = prop.getProperty("PO_Schedule_test3_desc");
+               ExtentTest test_Schedule_by_Recommendation = extent.createTest("Schedule this PO by the Recommended way",test3_desc);
 
-                test_Schedule_by_Recommendation.info("Click on the blue Reschedule button");
-                // click on the Schedule button
+               test_Schedule_by_Recommendation.info("Click on the blue Schedule button");
+               // click on the Schedule button
                 WebElement scheduleButton = driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/div[2]/div[2]/button"));
                 scheduleButton.click();
 
@@ -211,7 +215,7 @@ public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReport
                 driver.findElement(By.xpath("/html/body/div/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/div[2]/button[2]")).click();
 
 
-                test_Select_Date_and_Time.pass("Successfully chosen Date and Time slot to Reschedule the Appointment.");
+                test_Select_Date_and_Time.pass("Successfully chosen Date and Time slot to Schedule the Appointment.");
                 // Now we select the Carrier
                 // Select Carrier
                 ExtentTest testSelectCarrier = extent.createTest("Select Carrier", "Select Carrier");
@@ -234,6 +238,17 @@ public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReport
                     System.out.println("Select carrier: " + selectedCarrier);
                     testSelectCarrier.pass("Select carrier: " + selectedCarrier);
 
+//
+//
+//
+//
+//                    } catch (Exception E) {
+//                        System.out.println("Select Carrier failed");
+//                        testSelectCarrier.fail("Failed to Select Carrier field");
+//
+//                    }
+
+
                 } catch (Exception E) {
                     System.out.println("Select Carrier unsuccessful");
                     testSelectCarrier.fail("Select Carrier unsuccessful");
@@ -241,7 +256,7 @@ public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReport
 
                 String test_desc = prop.getProperty("PO_Schedule_test5_desc");
 
-                ExtentTest test_schedule_PO_final = extent.createTest("Reschedule Appointment for a PO",test_desc);
+                ExtentTest test_schedule_PO_final = extent.createTest("Schedule Appointment for a PO",test_desc);
 //                After selecting the carrier we can now finally click on the submit button
                 WebElement submit_button = driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/div/div[2]/button[2]"));
                 submit_button.click();
@@ -257,10 +272,10 @@ public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReport
                 String ap_date = driver.findElement(By.xpath("(//span[@class='dateTime-value'])[1]")).getText();
                 String ap_time = driver.findElement(By.xpath("(//span[@class='dateTime-value'])[2]")).getText();
 
-                test_schedule_PO_final.pass("Successfully Rescheduled an Appointment for PO number : " + targeted_PO_number + " with date : " + ap_date + " and Time : " + ap_time);
+                test_schedule_PO_final.pass("Successfully Scheduled an Appointment for PO number : " + targeted_PO_number + " with date : " + ap_date + " and Time : " + ap_time);
             }
             else{
-                System.out.println("Can't Reschedule this PO, we are not in the correct page.");
+                System.out.println("Can't Schedule this PO, we are not in the correct page.");
             }
 
         }
@@ -268,6 +283,5 @@ public static void Reschedule_PO(WebDriver driver, Properties prop, ExtentReport
             E.printStackTrace();
         }
     }
-
 
 }
