@@ -266,8 +266,6 @@ public class CheckIn {
 
             Thread.sleep(3000);
 
-
-
             if(matching_name && matching_license_no && matching_driver_phone_no && matching_trailer_no && matching_trailer_type){
                 System.out.println("Test passed, data is preserved during CheckIn");
                 test_data_validation_from_earlier_checkIn.pass("Test passed, value are same in the Load Details modal with whatever we've entered earlier during CheckIn");
